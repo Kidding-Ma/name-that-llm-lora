@@ -1,0 +1,27 @@
+{
+  "checked_date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "shared_notebook": "https://www.kaggle.com/code/kiza123123/ntl-0604-dual-lora-gaussian-hungarian?scriptVersionId=360450415",
+  "user_failed_notebook": "https://www.kaggle.com/code/kiddingma/ntl-sota-0604-dual-lora-gaussian-hungarian?scriptVersionId=360958369",
+  "missing_source_ref": "lightningv08/ntl-lora24-fivefold-training",
+  "original_log_path": "/kaggle/input/notebooks/lightningv08/ntl-lora24-fivefold-training/lora24/final",
+  "current_browser_observation": "Source page not found for the current account; shared Input includes a Private Datasource item. Reason and future availability unknown.",
+  "cached_metadata": {
+    "ref": "lightningv08/ntl-lora24-fivefold-training",
+    "currentVersionNumber": 1,
+    "isPrivate_at_snapshot": false,
+    "lastRunTime_field": "2026-10-17T14:27:37.4235525Z",
+    "warning": "Historical metadata and cached source are not proof of a completed run or current availability."
+  },
+  "cached_source_sha256": {
+    "lora_training.ipynb": "c5ce568aff55c35eef472377c62156d02aa7b5c293289f497c4488e1b1722ee6",
+    "lora_training.py": "9187c36441d0bb6a3b7897101ed3ae3977e4505901509f6febe4802a88d806b1",
+    "lora_training_notes.md": "9ccfdffafc8341719d26130faa9ea21fd57e83abf837ab37bc9262aa4dec94ff",
+    "lora_training_api.json": "eba52e06f65763447ead342f158e9e8a14315501cc99a7e39dff8ba152166ed3"
+  },
+  "redistributed_raw_cached_sources": false,
+  "implementation_identity": "New standalone implementation based on inspected model/file contracts; not byte-identical training or claimed original weights",
+  "upstream_public_score_displayed": 0.604,
+  "our_gpu_training": "NOT_RUN",
+  "our_leaderboard_score": null
+}
