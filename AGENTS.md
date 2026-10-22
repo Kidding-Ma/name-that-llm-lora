@@ -1,14 +1,11 @@
 # AI 执行入口
 
-先读 `AI_START_HERE.md`，按其中步骤在服务器或 Kaggle GPU 上完成训练和推理。
+先读 `AI_START_HERE.md`，用服务器GPU实际训练并导出所需LoRA24权重。
 
-按需查阅：
-- `configs/train.json`：训练配置。
-- `docs/GPU_RUNBOOK_ZH.md`：环境、命令与故障处理。
-- `docs/MODEL_CONTRACT.md`：权重格式与模型实现。
-- `docs/INTEGRATE_ORIGINAL.md`：接回原 Kaggle Notebook。
+数据已在data/，模型由scripts/fetch_model.py公开下载。运行入口是server_start.py。
+按需看docs/SERVER_QUICKSTART.md、docs/MODEL_CONTRACT.md和docs/INTEGRATE_ORIGINAL.md。
 
-代码修改后执行测试；修改 Python 或配置后重新生成 Kaggle Notebook：
+修改Python或配置后执行：
 
 ```bash
 python scripts/build_notebooks.py

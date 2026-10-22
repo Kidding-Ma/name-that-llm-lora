@@ -1,3 +1,5 @@
+> 当前服务器入口：`python server_start.py --phase all --devices 0`。三份比赛输入已在仓库data/，base由脚本自动下载，无需Kaggle凭据。直接操作见 [SERVER_QUICKSTART.md](SERVER_QUICKSTART.md)。
+
 # GPU 执行手册：从空机器到可提交模型
 
 ## 0. 先确认目标与环境

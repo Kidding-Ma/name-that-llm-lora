@@ -1,0 +1,12 @@
+.git
+.venv
+__pycache__
+**/__pycache__
+models
+artifacts
+outputs
+private_runs
+*.zip
+*.log
+kaggle.json
+.env

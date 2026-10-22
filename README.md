@@ -1,37 +1,34 @@
-# Name That LLM GPU 训练交接
+# Name That LLM：直接在 GPU 服务器训练权重
 
-用比赛训练集训练 Qwen3-8B LoRA24 权重，补齐原 Kaggle Notebook 缺失的模型，再运行推理。
+**目标：训练当前缺失的 LoRA24 完整检查点，再用于 Kaggle 推理。**
 
-**接手 AI 从 [AI_START_HERE.md](AI_START_HERE.md) 开始，里面有完整执行命令。**
+比赛训练集、测试样例和提交样例已放进 `data/`，不需要 Kaggle 凭据。官方 Qwen3-8B Base 由脚本从 ModelScope / Hugging Face 自动下载（约16GB）。
 
-当前：CPU 测试已通过；下一步是在 GPU 服务器或 Kaggle 上运行短训练，再做完整训练。
+接手 AI 先读 [AI_START_HERE.md](AI_START_HERE.md)，服务器有可用 CUDA PyTorch 时执行：
 
-## 主要文件
+```bash
+python -m pip install -r requirements-gpu.txt -r requirements-fetch.txt
+python server_start.py --phase check
+python server_start.py --phase all --devices 0
+```
 
-| 文件 | 用途 |
-|---|---|
-| `AI_START_HERE.md` | 读什么、准备什么、运行什么、交付什么 |
-| `configs/train.json` | 训练参数 |
-| `scripts/train.py` | 训练一个 fold 或 final 模型 |
-| `scripts/run_jobs.py` | 用一张或多张 GPU 运行训练任务 |
-| `scripts/check_parity.py` | 检查权重保存和重新加载 |
-| `scripts/evaluate_oof.py` | 汇总五折验证结果 |
-| `scripts/predict.py` | 单模型推理 |
-| `scripts/patch_notebook.py` | 将权重接回原 Notebook |
-| `notebooks/01_train_lora24.ipynb` | 可直接上传 Kaggle 的训练入口 |
-| `notebooks/02_predict_plain.ipynb` | 可直接上传 Kaggle 的推理入口 |
+`all` 会实际完成：下载base → 短训练与重新加载验证 → 五折和全量训练 → 验证 → 导出完整权重 → 样例推理。
 
-## 需要的输入
+## 输出
 
-- 比赛：`name-that-llm` 的训练和测试数据。
-- 基础模型：`qwen-lm/qwen-3/Transformers/8b-base/1`。
-- 有 CUDA GPU 的服务器或 Kaggle Notebook。
+`artifacts/server-run1/`：
+- `own_lora24_checkpoint.zip`：adapter、tokenizer、heads、readouts、anchors和完成标记。
+- `oof_report.json`、`final_parity.json`：验证结果。
+- `submission.parquet`：公开3行test的预测。
+- `SERVER_RESULT.json`：结果索引。
 
-## 按需参考
+## 入口和参考
 
-- [GPU 运行手册](docs/GPU_RUNBOOK_ZH.md)
-- [模型与文件格式](docs/MODEL_CONTRACT.md)
-- [接回原 Notebook](docs/INTEGRATE_ORIGINAL.md)
-- [GitHub 网页上传步骤](docs/GITHUB_UPLOAD_ZH.md)
+- [服务器操作与Docker](docs/SERVER_QUICKSTART.md)
+- [全部依赖检查](docs/DEPENDENCY_AUDIT.md)
+- [模型结构与文件格式](docs/MODEL_CONTRACT.md)
+- [接回原Notebook](docs/INTEGRATE_ORIGINAL.md)
+- `notebooks/01_train_lora24.ipynb`：Kaggle训练入口。
+- `notebooks/02_predict_plain.ipynb`：Kaggle推理入口，隐藏test由Kaggle重跑时提供。
 
-完整训练产物是 `own_lora24/final/`。源码上传 GitHub；数据与权重保存在服务器或 Kaggle。
+本地已完成CPU测试和数据校验；GPU训练由接手方在服务器执行。

@@ -21,5 +21,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This license covers the newly authored code and documentation in this package.
-Referenced third-party notebooks, competition data and model weights are not
-included and retain their respective licenses and terms.
+Referenced third-party notebooks and model weights are not included.
+Bundled competition inputs retain their original dataset terms and rules.

@@ -1,0 +1,3 @@
+# Public model download clients; no Kaggle credential is needed.
+huggingface_hub>=0.30,<2
+modelscope>=1.28,<2

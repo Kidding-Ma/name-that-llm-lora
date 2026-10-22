@@ -1,3 +1,5 @@
+> 当前服务器入口：`python server_start.py --phase all --devices 0`。三份比赛输入已在仓库data/，base由脚本自动下载，无需Kaggle凭据。直接操作见 [SERVER_QUICKSTART.md](SERVER_QUICKSTART.md)。
+
 # 用户如何上传并交给别人
 
 工作区目录：`D:\Kaggle\NameThatLLM-LoRA-Handoff`。
@@ -36,4 +38,4 @@ git push -u origin main
 
 ## 什么不上传
 
-比赛CSV、模型shards、adapter、checkpoint zip、API Token、kaggle.json、预测文件、原始Notebook/API快照、运行日志均不上传此源码仓库。训练权重通过Kaggle Dataset/Notebook Output等单独交付。发布工具采用白名单打包，可避免把后续运行文件误带入源码zip。
+比赛三份输入已经明确包含在data/；其余模型shards、adapter、checkpoint zip、API Token、kaggle.json、预测文件和运行日志仍保存在运行目录。训练权重通过Kaggle Dataset/Notebook Output等单独交付。发布工具采用白名单打包，可避免把后续运行文件误带入源码zip。

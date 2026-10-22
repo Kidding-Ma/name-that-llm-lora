@@ -21,6 +21,14 @@ def main():
         import peft
         import transformers
         assert torch.cuda.is_available(), "CUDA unavailable; this step needs a GPU machine"
+        x = torch.randn(32, 32, device='cuda', requires_grad=True)
+        (x @ x).square().mean().backward()
+        torch.cuda.synchronize()
+        assert bool(torch.isfinite(x.grad).all()), 'CUDA kernel/backward failed'
+        del x
+        torch.cuda.empty_cache()
+        report['cuda_kernel_and_backward'] = 'PASS'
+        report['torch_cuda'] = torch.version.cuda
         report["gpus"] = [{"name": torch.cuda.get_device_name(i),
                            "total_bytes": torch.cuda.get_device_properties(i).total_memory,
                            "free_bytes": torch.cuda.mem_get_info(i)[0]}

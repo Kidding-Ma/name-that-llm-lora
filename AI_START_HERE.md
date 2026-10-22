@@ -1,70 +1,50 @@
-# 接手后直接执行
+# 接手后直接训练所需权重
 
-目标：在 GPU 服务器上，用比赛训练集训练 LoRA24 权重，接回 Kaggle 推理，生成可提交结果。
+目标：用服务器GPU训练当前缺失的LoRA24完整检查点，验证后导出并接回Kaggle推理。任务需要实际产出权重，不停在搭环境。
 
-## 1. 先看这三个文件
+## 已经提供
 
-1. `README.md`：项目文件位置。
-2. `configs/train.json`：默认训练参数。
-3. `docs/GPU_RUNBOOK_ZH.md`：安装依赖和运行命令。
+- `data/train.csv`：2699条标注数据、150个prompt。
+- `data/test.csv`、`data/sample_submission.parquet`：公开测试与格式样例。
+- `scripts/fetch_model.py`：从ModelScope或Hugging Face自动下载官方Qwen3-8B Base，不需要Kaggle凭据。
+- `requirements-gpu.txt`、`requirements-fetch.txt`、`Dockerfile`：环境入口。
+- 训练、验证、推理和Kaggle Notebook。
 
-现有代码已通过 CPU 测试，尚未在 GPU 上运行。接手后从短训练开始验证。
+## 直接执行
 
-## 2. 准备服务器和输入
-
-- 运行 `nvidia-smi`，确认 GPU 型号、数量和空闲显存。
-- 准备 CUDA 版 PyTorch，安装 `requirements-gpu.txt` 中的依赖。
-- 下载比赛 `name-that-llm` 的 `train.csv`、`test.csv`。
-- 下载完整官方 Qwen3-8B Base，Kaggle 标识为 `qwen-lm/qwen-3/Transformers/8b-base/1`。
-- 在下面命令中，把 `/mnt/name-that-llm` 和 `/mnt/qwen3-8b-base` 换成真实路径。
-
-## 3. 先运行短训练
-
-从仓库根目录执行：
+有CUDA版PyTorch的服务器（包括B200）从仓库根目录执行：
 
 ```bash
-python scripts/prepare.py --train-csv /mnt/name-that-llm/train.csv --base-model /mnt/qwen3-8b-base --output artifacts/run1/plan.json
-python scripts/preflight.py --plan artifacts/run1/plan.json --output artifacts/run1/preflight.json
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --plan artifacts/run1/plan.json --job final --max-updates 2 --output artifacts/run1/smoke
-python scripts/validate_checkpoint.py --checkpoint artifacts/run1/smoke --allow-smoke
-CUDA_VISIBLE_DEVICES=0 python scripts/check_parity.py --checkpoint artifacts/run1/smoke --base-model /mnt/qwen3-8b-base --train-csv /mnt/name-that-llm/train.csv --allow-smoke --output artifacts/run1/smoke_parity.json
+python -m pip install -r requirements-gpu.txt -r requirements-fetch.txt
+python server_start.py --phase check
+python server_start.py --phase all --devices 0
 ```
 
-解决报错，确认短训练、保存和重新加载通过，然后继续。
+两张空闲卡用`--devices 0,1`。已有完整base时加`--base-model /模型目录`。需要搭建环境时按`docs/SERVER_QUICKSTART.md`使用Dockerfile。
 
-## 4. 完整训练并导出权重
+入口会检查CUDA实际计算、下载base、执行两步短训练和保存/加载验证，然后训练5fold及final，汇总OOF并打包权重，最后运行样例推理。每个模型默认3轮，配置在`configs/train.json`。遇到报错查看日志并修复后继续。
 
-下面使用两张 GPU 分配独立任务；只有一张卡时，把 `--devices 0,1` 改成 `--devices 0`。
+## 必须产出的文件
 
-```bash
-python scripts/run_jobs.py --plan artifacts/run1/plan.json --output-root artifacts/run1/checkpoints --devices 0,1 --jobs fold0,fold1,fold2,fold3,fold4,final
-python scripts/evaluate_oof.py --plan artifacts/run1/plan.json --checkpoints artifacts/run1/checkpoints --output artifacts/run1/oof_report.json
-python scripts/validate_checkpoint.py --checkpoint artifacts/run1/checkpoints/final
-CUDA_VISIBLE_DEVICES=0 python scripts/check_parity.py --checkpoint artifacts/run1/checkpoints/final --base-model /mnt/qwen3-8b-base --train-csv /mnt/name-that-llm/train.csv --output artifacts/run1/final_parity.json
-python scripts/bundle_checkpoint.py --checkpoint artifacts/run1/checkpoints/final --output artifacts/run1/own_lora24_checkpoint.zip
+`artifacts/server-run1/own_lora24_checkpoint.zip`，内部：
+
+```text
+own_lora24/final/
+  adapter/
+  tokenizer/
+  base_config/
+  heads.safetensors
+  readouts.npz
+  anchor_features.npz
+  training_meta.json
+  training_report.json
+  COMPLETE.json
 ```
 
-训练配置是五折验证加一个全量模型，每个训练三轮。原提交缺少的就是这一类 LoRA24 检查点。
+另外交付`oof_report.json`、`final_parity.json`、`SERVER_RESULT.json`和可运行的推理Notebook。
 
-## 5. 跑推理并接回原方案
+## 训练后继续
 
-先跑自己的单模型推理：
+先跑通自己的单模型推理，再按`docs/INTEGRATE_ORIGINAL.md`把权重替换进原分享。完整原融合的其他模型范围见`docs/DEPENDENCY_AUDIT.md`。
 
-```bash
-CUDA_VISIBLE_DEVICES=0 python scripts/predict.py --checkpoint artifacts/run1/checkpoints/final --base-model /mnt/qwen3-8b-base --test-csv /mnt/name-that-llm/test.csv --output artifacts/run1/submission.parquet
-```
-
-然后按照 `docs/INTEGRATE_ORIGINAL.md`，把生成的权重添加到 Kaggle，用 `scripts/patch_notebook.py` 接回原分享，跑完整推理。
-
-原分享：
-https://www.kaggle.com/code/kiza123123/ntl-0604-dual-lora-gaussian-hungarian?scriptVersionId=360450415
-
-如果直接在 Kaggle 工作，上传 `notebooks/01_train_lora24.ipynb` 开始训练；`02_predict_plain.ipynb` 用于单模型推理。
-
-## 6. 最后交付
-
-- `own_lora24_checkpoint.zip` 和权重下载位置。
-- 训练及验证结果、实际使用的 GPU 和依赖版本。
-- 能在 Kaggle 上运行的推理 Notebook 与提交结果。
-
-遇到问题先看日志并修复，具体格式和排查方法按需查阅 `docs/`。
+随仓库test是官方3行公开样例；正式完整hidden test由Kaggle重跑提供。接手者的GPU任务从上述命令直接开始，不需要用户补发CSV或kaggle.json。

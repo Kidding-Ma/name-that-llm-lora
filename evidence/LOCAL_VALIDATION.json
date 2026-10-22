@@ -2,9 +2,18 @@
   "checked_date": "2026-10-22",
   "timezone": "Asia/Shanghai",
   "status": "CPU_CHECKED_GPU_UNVERIFIED",
-  "environment": {"python": "3.13.1", "numpy": "2.2.6", "pandas": "3.0.1", "gpu_available_for_this_task": false},
+  "environment": {
+    "python": "3.13.1",
+    "numpy": "2.2.6",
+    "pandas": "3.0.1",
+    "gpu_available_for_this_task": false
+  },
   "checks": {
-    "unit_tests": {"status": "PASS", "count": 11, "command": "python -m unittest discover -s tests -v"},
+    "unit_tests": {
+      "status": "PASS",
+      "count": 13,
+      "command": "python -m unittest discover -s tests -v"
+    },
     "python_and_generated_notebook_syntax": "PASS",
     "prompt_disjoint_split_and_coverage": "PASS",
     "same_prompt_distinct_answer_sampler": "PASS",
@@ -13,20 +22,43 @@
     "embedded_source_patch_contract": "PASS",
     "prepare_cli_and_incomplete_model_shard_rejection": "PASS",
     "source_release_scan": "PASS",
-    "real_train_csv_readonly_audit": "PASS"
+    "real_train_csv_readonly_audit": "PASS",
+    "bundled_dataset_without_kaggle_credentials": "PASS",
+    "model_download_incomplete_shard_rejection": "PASS",
+    "server_start_phase_check": "PASS"
   },
   "real_train_summary_no_text_or_ids": {
     "rows": 2699,
     "prompts": 150,
     "classes": 18,
     "minimum_answers_per_prompt": 17,
-    "fold_validation_rows": [539, 540, 540, 540, 540],
+    "fold_validation_rows": [
+      539,
+      540,
+      540,
+      540,
+      540
+    ],
     "final_optimizer_updates_per_epoch": 150,
     "final_updates_for_default_3_epochs": 450,
     "train_sha256": "40a22ce8d88c5f46feb4637a099db815bef5f713ffe53e89dbe1b7b21de77707",
-    "data_included_in_release": false
+    "data_included_in_release": true
   },
-  "not_run": ["CUDA imports/preflight on receiving GPU", "GPU training smoke", "GPU memory benchmark", "GPU save/reload parity", "five-fold training and OOF score", "full-data final training", "original ensemble execution", "Kaggle hidden-test submission"],
-  "scores": {"our_oof": null, "our_public_lb": null, "our_private_lb": null},
-  "limitations": ["Synthetic checkpoint fixtures test contracts only; they are not loadable model weights.", "No CPU test establishes that the GPU training implementation works.", "Requirements are starting ranges; a working GPU environment must be measured and frozen by the receiver."]
+  "not_run": [
+    "Full 16GB base download on this machine",
+    "Docker GPU image build/run",
+    "CUDA smoke/training/reload on receiving GPU",
+    "Kaggle full hidden rerun"
+  ],
+  "scores": {
+    "our_oof": null,
+    "our_public_lb": null,
+    "our_private_lb": null
+  },
+  "limitations": [
+    "Synthetic checkpoint fixtures test contracts only; they are not loadable model weights.",
+    "No CPU test establishes that the GPU training implementation works.",
+    "Requirements are starting ranges; a working GPU environment must be measured and frozen by the receiver."
+  ],
+  "new_entry": "python server_start.py --phase all --devices 0"
 }
